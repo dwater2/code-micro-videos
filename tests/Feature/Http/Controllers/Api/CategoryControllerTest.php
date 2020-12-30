@@ -160,9 +160,11 @@ class CategoryControllerTest extends TestCase
     public function testDelete()
     {
         $category = factory(Category::class)->create();
-        $this->deleteJson('/api/categories/'.$category->id)
-            ->assertStatus(204);
-        $category = Category::find($category->id);
-        $this->assertNull($category);
+        $this->deleteJson('/api/categories/'.$category->id)->assertStatus(204);
+        //$response = $this->json('DELETE', route('categories.delete', ['category' => $category->id]));
+        //$response->assertStatus(204);
+        //$category = Category::find($category->id);
+        $this->assertNull(Category::find($category->id));
+        $this->assertNotNull(Category::withTrashed()->find($category->id));
     }
 }
