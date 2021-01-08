@@ -81,3 +81,4 @@ class GenreTest extends TestCase
         $this->assertTrue(RamseyUuid::isValid($genre->id));
     }
 }
+

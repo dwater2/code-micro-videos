@@ -7,7 +7,6 @@ use Faker\Generator as Faker;
 
 $factory->define(Genre::class, function (Faker $faker) {
     return [
-        'name' => "Ação",
-        'is_active' => true
+        'name' => $faker->colorName
     ];
 });

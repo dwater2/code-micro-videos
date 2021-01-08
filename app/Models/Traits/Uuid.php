@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Models\Traits;
 use \Ramsey\Uuid\Uuid as RamseyUuid;
 
