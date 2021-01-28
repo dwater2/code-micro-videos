@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Tests\Unit\Rules;
-
 
 use App\Rules\GenresHasCategoriesRule;
 use Mockery\MockInterface;
@@ -12,9 +10,7 @@ class GenresHasCategoriesRuleUnitTest extends TestCase
 {
     public function testCategoriesIdField()
     {
-        $rule = new GenresHasCategoriesRule(
-            [1, 1, 2, 2]
-        );
+        $rule = new GenresHasCategoriesRule([1, 1, 2, 2]);
         $reflectionClass = new \ReflectionClass(GenresHasCategoriesRule::class);
         $reflectionProperty = $reflectionClass->getProperty('categoriesId');
         $reflectionProperty->setAccessible(true);
@@ -23,15 +19,11 @@ class GenresHasCategoriesRuleUnitTest extends TestCase
         $this->assertEqualsCanonicalizing([1, 2], $categoriesId);
     }
 
-    public function tesGenresIdValue()
+    public function testGenresIdValue()
     {
-        $rule = $this->createRuleMock([]);
-        $rule
-            ->shouldReceive('getRows')
-            ->withAnyArgs()
-            ->andReturnNull();
-
+        $rule = new GenresHasCategoriesRule([]);
         $rule->passes('', [1, 1, 2, 2]);
+
         $reflectionClass = new \ReflectionClass(GenresHasCategoriesRule::class);
         $reflectionProperty = $reflectionClass->getProperty('genresId');
         $reflectionProperty->setAccessible(true);
@@ -49,7 +41,7 @@ class GenresHasCategoriesRuleUnitTest extends TestCase
         $this->assertFalse($rule->passes('', [1]));
     }
 
-    public function testPassesReturnsFalseWhenGetRowsIsEmpty()
+    public function testPassesReturnFalseWhenGetRowsIsEmpty()
     {
         $rule = $this->createRuleMock([1]);
         $rule
@@ -77,19 +69,18 @@ class GenresHasCategoriesRuleUnitTest extends TestCase
             ->withAnyArgs()
             ->andReturn(collect([
                 ['category_id' => 1],
-                ['category_id' => 2]
+                ['category_id' => 2],
             ]));
         $this->assertTrue($rule->passes('', [1]));
 
         $rule = $this->createRuleMock([1, 2]);
-        $rule
-            ->shouldReceive('getRows')
+        $rule->shouldReceive('getRows')
             ->withAnyArgs()
             ->andReturn(collect([
                 ['category_id' => 1],
                 ['category_id' => 2],
                 ['category_id' => 1],
-                ['category_id' => 2]
+                ['category_id' => 2],
             ]));
         $this->assertTrue($rule->passes('', [1]));
     }
@@ -100,5 +91,4 @@ class GenresHasCategoriesRuleUnitTest extends TestCase
             ->makePartial()
             ->shouldAllowMockingProtectedMethods();
     }
-
 }

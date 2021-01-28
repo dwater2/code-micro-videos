@@ -11,31 +11,37 @@ class GenreUnitTest extends TestCase
 {
     private $genre;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->genre = new Genre();
     }
 
-    public function testIfUseTraits()
+    protected function tearDown(): void
     {
-        $traits = [
-            SoftDeletes::class, Uuid::class
-        ];
-        $genreTraits= array_keys(class_uses(Genre::class));
-        $this->assertEquals($traits, $genreTraits);
+        parent::tearDown();
     }
 
-    public function testFillableAttribute()
+    public static function tearDownAfterClass(): void
+    {
+        parent::tearDownAfterClass();
+    }
+
+    public function testFillable()
     {
         $fillable = ['name', 'is_active'];
-        $this->assertEquals($fillable,$this->genre->getFillable());
+        $this->assertEquals($fillable, $this->genre->getFillable());
     }
 
-    public function testDatesAttribute()
-    {
-        $dates = ['created_at', 'updated_at', 'deleted_at'];
-        $this->assertEqualsCanonicalizing($dates, $this->genre->getDates());
+    public function testeIfUseTraits() {
+        $traits = [SoftDeletes::class, Uuid::class];
+        $genreTraits = array_keys(class_uses(Genre::class));
+        $this->assertEquals($traits, $genreTraits);
     }
 
     public function testCastsAttribute()
@@ -44,8 +50,17 @@ class GenreUnitTest extends TestCase
         $this->assertEquals($casts, $this->genre->getCasts());
     }
 
-    public function testIncrementing()
+    public function testIncrementingAttribute()
     {
-        $this->assertFalse($this->genre->incrementing);
+        $this->assertFalse($this->genre->getIncrementing());
+    }
+
+    public function testDatesAttribute()
+    {
+        $dates = ['deleted_at', 'created_at', 'updated_at'];
+        foreach ($dates as $date) {
+            $this->assertContains($date, $this->genre->getDates());
+        }
+        $this->assertCount(count($dates), $this->genre->getDates());
     }
 }

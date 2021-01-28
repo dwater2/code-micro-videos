@@ -3,38 +3,31 @@
 namespace Tests\Stubs\Controllers;
 
 use App\Http\Controllers\Api\BasicCrudController;
-use Tests\Stubs\Models\CategoryStub;
-use Tests\Stubs\Resources\CategoryStubResource;
+use App\Http\Controllers\Controller;
+use App\Models\Category;
+use Illuminate\Http\Request;
+use Tests\Stubs\Models\CategorySub;
 
 class CategoryControllerStub extends BasicCrudController
 {
-    private $rules = [
-        'name' => 'required|max:255',
-        'description' => 'nullable',
-    ];
-
-    protected function model()
+    protected function model() 
     {
-        return CategoryStub::class;
+        return CategorySub::class;
     }
 
-    protected function rulesStore()
+    protected function rulesStore() 
     {
-        return $this->rules;
+        return [
+            'name' => 'required|max:255',
+            'description' => 'nullable'
+        ];
     }
 
-    protected function rulesUpdate()
+    protected function rulesUpdate() 
     {
-        return $this->rules;
-    }
-
-    protected function resourceCollection()
-    {
-        return $this->resource();
-    }
-
-    protected function resource()
-    {
-        return CategoryStubResource::class;
+        return [
+            'name' => 'required|max:255',
+            'description' => 'nullable'
+        ];
     }
 }

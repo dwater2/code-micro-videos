@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Models\Traits;
-
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
@@ -11,7 +9,6 @@ use Illuminate\Support\Arr;
 trait UploadFiles
 {
     public $oldFiles = [];
-
     protected abstract function uploadDir();
 
     public static function bootUploadFiles()
@@ -19,10 +16,10 @@ trait UploadFiles
         static::updating(function (Model $model) {
             $fieldsUpdated = array_keys($model->getDirty());
             $filesUpdated = array_intersect($fieldsUpdated, self::$fileFields);
-            $filesFiltered = Arr::where($filesUpdated, function ($fileField) use($model){
+            $filesFiltered = Arr::where($filesUpdated, function ($fileField) use ($model) {
                 return $model->getOriginal($fileField);
             });
-            $model->oldFiles = array_map(function ($fileField) use($model) {
+            $model->oldFiles = array_map(function ($fileField) use ($model) {
                 return $model->getOriginal($fileField);
             }, $filesFiltered);
         });
@@ -69,12 +66,11 @@ trait UploadFiles
         \Storage::delete("{$this->uploadDir()}/{$filename}");
     }
 
-    // & = a variavel de onde foi chamada, também sofrerá as alterações
     public static function extractFiles(array &$attributes = [])
     {
         $files = [];
         foreach (self::$fileFields as $file) {
-            if(isset($attributes[$file]) && $attributes[$file] instanceof UploadedFile) {
+            if (isset($attributes[$file]) && $attributes[$file] instanceof UploadedFile) {
                 $files[] = $attributes[$file];
                 $attributes[$file] = $attributes[$file]->hashName();
             }

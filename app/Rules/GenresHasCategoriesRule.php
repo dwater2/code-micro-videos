@@ -52,8 +52,8 @@ class GenresHasCategoriesRule implements Rule
             }
             array_push($categoriesFound, ...$rows->pluck('category_id')->toArray());
         }
-        $categoriesFound = array_unique($categoriesFound);
 
+        $categoriesFound = array_unique($categoriesFound);
         if (count($categoriesFound) !== count($this->categoriesId)) {
             return false;
         }
