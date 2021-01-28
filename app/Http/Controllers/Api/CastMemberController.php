@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
+use App\Http\Resources\CastMemberResource;
 use App\Models\CastMember;
 
 class CastMemberController extends BasicCrudController
@@ -11,22 +13,32 @@ class CastMemberController extends BasicCrudController
     {
         $this->rules = [
             'name' => 'required|max:255',
-            'type' => 'required|in:'.implode(', ', CastMember::types()),
+            'type' => 'required|in:' . implode(',', [CastMember::TYPE_ACTOR, CastMember::TYPE_DIRECTOR])
         ];
     }
 
-    public function model()
+    protected function model()
     {
         return CastMember::class;
     }
 
-    public function rulesStore()
+    protected function rulesStore()
     {
         return $this->rules;
     }
 
-    public function rulesUpdate()
+    protected function rulesUpdate()
     {
         return $this->rules;
+    }
+
+    protected function resource()
+    {
+        return CastMemberResource::class;
+    }
+
+    protected function resourceCollection()
+    {
+        return $this->resource();
     }
 }

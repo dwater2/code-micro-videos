@@ -2,19 +2,25 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Genre extends Model
 {
-    use SoftDeletes, Traits\Uuid;
+    use SoftDeletes, Uuid;
+
     protected $fillable = ['name', 'is_active'];
     protected $dates = ['deleted_at'];
-    protected $casts = ['id' => 'string', 'is_active' => 'boolean'];
+    protected $casts = [
+        'id' => 'string',
+        'is_active' => 'boolean'
+    ];
     public $incrementing = false;
+    public $keyType = 'string';
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class)->withTrashed();
+        return $this->belongsToMany(Category::class);
     }
 }

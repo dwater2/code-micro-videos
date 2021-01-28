@@ -11,56 +11,41 @@ class CastMemberUnitTest extends TestCase
 {
     private $castMember;
 
-    public static function setUpBeforeClass(): void
-    {
-        parent::setUpBeforeClass();
-    }
-
     protected function setUp(): void
     {
         parent::setUp();
         $this->castMember = new CastMember();
     }
 
-    protected function tearDown(): void
+    public function testIfUseTraits()
     {
-        parent::tearDown();
+        $traits = [
+            Uuid::class, SoftDeletes::class
+        ];
+        $castMemberTraits = array_keys(class_uses(CastMember::class));
+        $this->assertEquals($traits, $castMemberTraits);
     }
 
-    public static function tearDownAfterClass(): void
-    {
-        parent::tearDownAfterClass();
-    }
-
-    public function testFillable()
+    public function testFillableAttribute()
     {
         $fillable = ['name', 'type'];
-        $this->assertEquals($fillable,  $this->castMember->getFillable());
-    }
-
-    public function testeIfUseTraits() {
-        $traits = [SoftDeletes::class, Uuid::class];
-        $casMemberTraits = array_keys(class_uses(CastMember::class));
-        $this->assertEquals($traits, $casMemberTraits);
-    }
-
-    public function testCastsAttribute()
-    {
-        $casts = ['id' => 'string', 'type' => 'smallInteger'];
-        $this->assertEquals($casts,  $this->castMember->getCasts());
-    }
-
-    public function testIncrementingAttribute()
-    {
-        $this->assertFalse( $this->castMember->getIncrementing());
+        $this->assertEquals($fillable,$this->castMember->getFillable());
     }
 
     public function testDatesAttribute()
     {
-        $dates = ['deleted_at', 'created_at', 'updated_at'];
-        foreach ($dates as $date) {
-            $this->assertContains($date,  $this->castMember->getDates());
-        }
-        $this->assertCount(count($dates),  $this->castMember->getDates());
+        $dates = ['created_at', 'updated_at', 'deleted_at'];
+        $this->assertEqualsCanonicalizing($dates, $this->castMember->getDates());
+    }
+
+    public function testIncrementing()
+    {
+        $this->assertFalse($this->castMember->incrementing);
+    }
+
+    public function testCastsAttribute()
+    {
+        $casts = ['id' => 'string','type' => 'integer'];
+        $this->assertEquals($casts, $this->castMember->getCasts());
     }
 }
