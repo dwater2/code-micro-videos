@@ -42,13 +42,6 @@ class VideoControllerTest extends TestCase
             ->assertJson([$this->video->toArray()]);
     }
 
-    public function testShow()
-    {
-        $response = $this->get(route('videos.show', ['video' => $this->video->id]));
-        $response
-            ->assertStatus(200)
-            ->assertJson($this->video->toArray());
-    }
 
     public function testInvalidationRequired()
     {
@@ -194,7 +187,6 @@ class VideoControllerTest extends TestCase
                 $value['test_data'] + ['deleted_at' => null]
             );
             $response->assertJsonStructure([
-                'created_at',
                 'updated_at'
             ]);
 
@@ -206,7 +198,6 @@ class VideoControllerTest extends TestCase
                 $value['test_data'] + ['deleted_at' => null]
             );
             $response->assertJsonStructure([
-                'created_at',
                 'updated_at'
             ]);
         }
@@ -255,11 +246,6 @@ class VideoControllerTest extends TestCase
         $controller = \Mockery::mock(VideoController::class)
             ->makePartial()
             ->shouldAllowMockingProtectedMethods();
-
-        $controller
-            ->shouldReceive('findOrFail')
-            ->withAnyArgs()
-            ->andReturn($this->video);
 
         $controller
             ->shouldReceive('validate')

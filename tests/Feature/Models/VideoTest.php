@@ -11,29 +11,6 @@ class VideoTest extends TestCase
 {
     use DatabaseMigrations;
 
-    public function testList()
-    {
-        factory(Video::class, 1)->create();
-        $videos = Video::all();
-        $this->assertCount(1, $videos);
-        $videoKey = array_keys($videos->first()->getAttributes());
-        $this->assertEqualsCanonicalizing(
-            [
-                'id',
-                'title',
-                'description',
-                'year_launched',
-                'opened',
-                'rating',
-                'duration',
-                'created_at',
-                'updated_at',
-                'deleted_at'
-            ],
-            $videoKey
-        );
-    }
-
     public function testCreate()
     {
         $rating = Video::RATING_LIST[0];
