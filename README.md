@@ -1,21 +1,16 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="http://maratona.fullcycle.com.br/public/img/logo-maratona.png"/></a>
-</p>
+## Nesta fase você deve criar o campo para upload do vídeo na tabela vídeos:
 
-## Descrição
+video_file, string e nullable
 
-Microsserviço de catálogo
+## Validação
 
-## Rodar a aplicação
+    a) Os uploads não serão obrigatórios ao se enviar um POST ou PUT para /videos, logo nas regras de validação não teremos a regra required;
 
-#### Crie os containers com Docker
+    b) Devemos validar o upload de vídeo requerendo somente o tipo video/mp4 e um tamanho máximo (especifique um valor simbolico para o tamanho). 
+       Pesquise na documentação do Laravel como validar tipos de arquivo e o tamanho máximo de um arquivo;
 
-```bash
-$ docker-compose up
-```
+    c) Crie o teste de validação do upload de vídeo, é necessário testar a invalidação do tipo do vídeo e o tamanho máximo.
 
-#### Accesse no browser
+## Upload
 
-```
-http://localhost:8000
-```
+    Implemente o upload do vídeo (somente com POST) como foi mostrado no capítulo e aplique um teste para verificar se o arquivo foi criado corretamente após o término do cadastro.
