@@ -53,36 +53,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
         ]
     ];
 
-    public function testIndex()
-    {
-        $response = $this->get(route('videos.index'));
-        $response
-            ->assertStatus(200)
-            ->assertJson([
-                'meta' => ['per_page' => 15]
-            ])
-            ->assertJsonStructure([
-                'data' => [
-                    '*' => $this->serializeFields
-                ],
-                'links' => [],
-                'meta' => []
-            ]);
-        $this->assertResource($response, VideoResource::collection(collect([$this->video])));
-        $this->assertIfFilesUrlExists($this->video, $response);
-    }
 
-    public function testShow()
-    {
-        $response = $this->get(route('videos.show', ['video' => $this->video->id]));
-        $response
-            ->assertStatus(200)
-            ->assertJsonStructure([
-                "data" => $this->serializeFields
-            ]);
-        $this->assertResource($response, new VideoResource(Video::find($response->json('data.id'))));
-        $this->assertIfFilesUrlExists($this->video, $response);
-    }
 
     public function testInvalidationRequired()
     {
@@ -188,71 +159,6 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
         ];
         $this->assertInvalidationInStoreAction($data, 'exists');
         $this->assertInvalidationInUpdateAction($data, 'exists');
-    }
-
-    public function testSaveWithoutFiles()
-    {
-        $testData = Arr::except($this->sendData, ['categories_id', 'genres_id']);
-        $data = [
-            [
-                'send_data' => $this->sendData,
-                'test_data' => $testData + ['opened' => false]
-            ],
-            [
-                'send_data' => $this->sendData + [
-                        'opened' => true
-                    ],
-                'test_data' => $testData + ['opened' => true]
-            ],
-            [
-                'send_data' => $this->sendData + [
-                        'rating' => Video::RATING_LIST[1],
-                    ],
-                'test_data' => $testData + ['rating' => Video::RATING_LIST[1]]
-            ]
-        ];
-
-        foreach ($data as $key => $value) {
-            $response = $this->assertStore(
-                $value['send_data'],
-                $value['test_data'] + ['deleted_at' => null]
-            );
-            $response->assertJsonStructure([
-                'data' => $this->serializeFields
-            ]);
-            $this->assertResource(
-                $response,
-                new VideoResource(Video::find($response->json('data.id')))
-            );
-            $this->assertHasCategory(
-                $value['send_data']['genres_id'][0],
-                $value['send_data']['categories_id'][0]
-            );
-            $this->assertHasGenre(
-                $response->json('data.id'),
-                $value['send_data']['genres_id'][0]
-            );
-
-            $response = $this->assertUpdate(
-                $value['send_data'],
-                $value['test_data'] + ['deleted_at' => null]
-            );
-            $response->assertJsonStructure([
-                'data' => $this->serializeFields
-            ]);
-            $this->assertResource(
-                $response,
-                new VideoResource(Video::find($response->json('data.id')))
-            );
-            $this->assertHasCategory(
-                $value['send_data']['genres_id'][0],
-                $value['send_data']['categories_id'][0]
-            );
-            $this->assertHasGenre(
-                $response->json('data.id'),
-                $value['send_data']['genres_id'][0]
-            );
-        }
     }
 
     protected function assertHasCategory($genreId, $categoryId)
