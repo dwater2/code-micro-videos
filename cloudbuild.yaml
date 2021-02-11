@@ -8,8 +8,8 @@ steps:
     - --ciphertext-file=./storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json.enc
     - --plaintext-file=./storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json
     - --location=global
-    - --keyring=testing-lesson
-    - --key=service-account
+    - --keyring=testing-lesson-d
+    - --key=service-account-d
     - --project=$PROJECT_ID
 
 - id: 'Rodando-docker-compose'
