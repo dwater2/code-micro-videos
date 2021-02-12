@@ -36,13 +36,14 @@ services:
         tty: true
         ports:
             - "33006:3306"
-        volumes:
-            - ./.docker/dbdata:/var/lib/mysql
-            - ./.docker/mysql:/docker-entrypoint-initdb.d
+        #volumes:
+            #- ./.docker/dbdata:/var/lib/mysql
+            #- ./.docker/mysql:/docker-entrypoint-initdb.d
         environment:
+            - MYSQL_DATABASE=code_micro_videos
+            - MYSQL_PASSWORD=root
             - MYSQL_ROOT_PASSWORD=root
             - MYSQL_USER=root
-            - DB_DATABASE=code_micro_videos
         networks:
             - app-network
 
