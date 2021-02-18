@@ -17,6 +17,7 @@ services:
             - app-network
         depends_on:
             - db
+            - db2
             - redis
 
     nginx:
@@ -59,6 +60,33 @@ services:
             - 6379
         networks:
             - app-network
+
+    db2:
+        build: .docker/mysql
+        command: --innodb-use-native-aio=0
+        container_name: db2
+        restart: always
+        tty: true
+        ports:
+            - "33006:3306"
+        #volumes:
+        #    - ./.docker/dbdata:/var/lib/mysql
+        #   - ./.docker/mysql:/docker-entrypoint-initdb.d
+        environment:
+            - MYSQL_DATABASE=code_micro_videos_test
+            - MYSQL_PASSWORD=root
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_USER=root
+        networks:
+            - app-network     
+
+    redis:
+        image: redis:alpine
+        container_name: redis
+        expose:
+            - 6379
+        networks:
+            - app-network            
 
 networks:
     app-network:
