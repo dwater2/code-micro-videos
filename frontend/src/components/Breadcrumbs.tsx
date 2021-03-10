@@ -35,48 +35,48 @@ interface LinkRouterProps extends LinkProps {
 const LinkRouter = (props: LinkRouterProps) => <Link {...props} component={RouterLink as any} />;
 
 export default function Breadcrumbs() {
-  const classes = useStyles();
 
+    const classes = useStyles();
 
-  function makeBreadcrumb(location: Location){
+    function makeBreadcrumb(location: Location) {
 
-    const pathnames = location.pathname.split('/').filter((x) => x);
-    pathnames.unshift('/');
+        const pathnames = location.pathname.split('/').filter((x) => x);
+        pathnames.unshift('/');
+
+        return (
+            <MuiBreadcrumbs aria-label="breadcrumb">
+            {
+                pathnames.map((value, index) => {
+                    const last = index === pathnames.length - 1;
+                    const to = `${pathnames.slice(0, index + 1).join('/').replace('//', '/')}`;
+                    const route = Object.keys(breadcrumbNameMap).find(path => new RouteParser(path).match(to));
+
+                    if(route === undefined) {
+                        return false;
+                    }
+
+                    return last ? (
+                        <Typography color="textPrimary" key={to} >
+                            {breadcrumbNameMap[route]}
+                        </Typography>
+                    ) : (
+                        <LinkRouter color="inherit" to={to} key={to} className={classes.linkRouter}>
+                            {breadcrumbNameMap[route]}
+                        </LinkRouter>
+                    );
+                })
+            }
+            </MuiBreadcrumbs>
+        );
+    }
 
     return (
-        <MuiBreadcrumbs aria-label="breadcrumb">
-        {
-            pathnames.map((value, index) => {
-                const last = index === pathnames.length - 1;
-                const to = `${pathnames.slice(0, index + 1).join('/').replace('//', '/')}`;
-                const route = Object.keys(breadcrumbNameMap).find(path => new RouteParser(path).match(to));
-
-                if(route === undefined) {
-                    return false;
+        <Container>
+            <Route>
+                {
+                    ({location}: {location: Location}) => makeBreadcrumb(location)
                 }
-
-                return last ? (
-                    <Typography color="textPrimary" key={to} >
-                        {breadcrumbNameMap[route]}
-                    </Typography>
-                ) : (
-                    <LinkRouter color="inherit" to={to} key={to} className={classes.linkRouter}>
-                        {breadcrumbNameMap[route]}
-                    </LinkRouter>
-                );
-            })
-        }
-        </MuiBreadcrumbs>
+            </Route>
+        </Container>
     );
-  }
-
-  return (
-      <Container>
-        <Route>
-            {
-                ({location}: {location: Location}) => makeBreadcrumb(location)
-            }
-        </Route>
-      </Container>
-  );
 }
