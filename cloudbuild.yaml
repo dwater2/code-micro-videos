@@ -5,8 +5,8 @@ steps:
   args:
     - kms
     - decrypt
-    - --ciphertext-file=./backend/storage/credentials/google/my-project-17-01-1983-ea83fbc638a2.json.enc
-    - --plaintext-file=./backend/storage/credentials/google/my-project-17-01-1983-ea83fbc638a2.json
+    - --ciphertext-file=./storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json.enc
+    - --plaintext-file=./storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json
     - --location=global
     - --keyring=testing-lesson
     - --key=service-account
@@ -19,7 +19,7 @@ steps:
       - GOOGLE_CLOUD_PROJECT_ID=$PROJECT_ID
       - GOOGLE_CLOUD_KEY_FILE=my-project-17-01-1983-ea83fbc638a2.json
       - GOOGLE_CLOUD_STORAGE_BUCKET=code-micro-videos-osniantonio
-      - GOOGLE_CLOUD_STORAGE_API_URI=https://storage.cloud.google.com/code-micro-videos-osniantonio
+      - GOOGLE_CLOUD_STORAGE_API_URI=https://storage.googleapis.com/code-micro-videos-d
       - TESTING_PROD=true
 
 - id: 'Chown in /var/www'
