@@ -5,8 +5,8 @@ steps:
   args:
     - kms
     - decrypt
-    - --ciphertext-file=./storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json.enc
-    - --plaintext-file=./storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json
+    - --ciphertext-file=./backend/storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json.enc
+    - --plaintext-file=./backend/storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json
     - --location=global
     - --keyring=testing-lesson
     - --key=service-account
@@ -21,6 +21,7 @@ steps:
       - GOOGLE_CLOUD_STORAGE_BUCKET=code-micro-videos-osniantonio
       - GOOGLE_CLOUD_STORAGE_API_URI=https://storage.googleapis.com/code-micro-videos-d
       - TESTING_PROD=true
+
 
 - id: 'Chown in /var/www'
   name: 'gcr.io/cloud-builders/docker'
