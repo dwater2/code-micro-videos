@@ -5,8 +5,8 @@ steps:
   args:
     - kms
     - decrypt
-    - --ciphertext-file=./storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json.enc
-    - --plaintext-file=./storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json
+    - --ciphertext-file=./backend/storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json.enc
+    - --plaintext-file=./backend/storage/credentials/google/my-project-17-01-1983-a4fd1c6b41ee.json
     - --location=global
     - --keyring=testing-lesson-d
     - --key=service-account-d
