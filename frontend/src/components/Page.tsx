@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Container, Typography, makeStyles} from '@material-ui/core';
+import {Box, Container, makeStyles, Typography} from "@material-ui/core";
 
 const useStyles = makeStyles({
     titles: {
@@ -18,6 +18,9 @@ export const Page: React.FC<PageProps> = (props) => {
             <Typography className={classes.titles} component="h1" variant="h5">
                 {props.title}
             </Typography>
+            <Box paddingTop={1}>
+                {props.children}
+            </Box>
         </Container>
     );
 };
