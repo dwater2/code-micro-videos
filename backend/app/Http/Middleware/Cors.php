@@ -19,7 +19,7 @@ class Cors
         $origins = env('CORS_ORIGINS', []);
         $response = $next($request);
         $response->header('Access-Control-Allow-Origin', is_string($origins) ? explode(",", $origins) : $origins);
-        $response->header('Access-Control-Allow-Methods', 'HEAD, GET, PUT, PATCH, POST, DELETE');
+        $response->header('Access-Control-Allow-Methods', 'HEAD, GET, PUT, PATCH, POST, DELETE, OPTIONS');
         return $response;
     }
 }

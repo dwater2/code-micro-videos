@@ -22,4 +22,5 @@ export default class HttpResource {
   delete<T = any>(id): Promise<AxiosResponse<T>> {
     return this.http.delete<T>(`${this.resource}/${id}`);
   }
+
 }
