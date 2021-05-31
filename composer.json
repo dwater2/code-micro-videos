@@ -1,0 +1,5 @@
+{
+    "require": {
+        "tucker-eric/eloquentfilter": "^3.0"
+    }
+}

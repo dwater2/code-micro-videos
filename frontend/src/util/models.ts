@@ -23,7 +23,6 @@ interface Timestampable {
     readonly updated_at: string;
 }
 
-
 export interface Category extends Timestampable{
     readonly id: string;
     name: string;
@@ -46,12 +45,16 @@ export const CastMemberTypeMap: CastMemberType = {
     2: 'Ator'
 };
 
+export const ActiveMap: any = {
+    'Não': false,
+    'Sim': true
+};
+
 export interface Genre extends Timestampable {
     readonly id: string;
     name: string;
     is_active: boolean;
     categories: Category[];
-
 }
 
 interface GenreVideo extends Omit<Genre, 'categories'> {

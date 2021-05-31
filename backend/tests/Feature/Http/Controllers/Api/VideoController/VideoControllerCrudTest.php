@@ -225,7 +225,6 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
                 $response,
                 new VideoResource(Video::find($response->json('data.id')))
             );
-            $this->assertIfFileUrlExists($this->video, $response);
 
             $response = $this->assertUpdate($value['send_data'], $value['test_data'] + ['deleted_at' => null]);
             $response->assertJsonStructure([
@@ -235,7 +234,6 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
                 $response,
                 new VideoResource(Video::find($response->json('data.id')))
             );
-            $this->assertIfFileUrlExists($this->video, $response);
         }
     }
 
