@@ -12,6 +12,7 @@ class VideoSeeder extends Seeder
     private $relations = [
         'genres_id' => [],
         'categories_id' => [],
+        'cast_member_id' => [],
     ];
 
     /**
