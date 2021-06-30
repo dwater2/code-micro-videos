@@ -83,16 +83,16 @@ class Video extends Model
         return $saved;
     }
 
-    public static function handleRelations($obj, array $attributes)
+    public static function handleRelations(Video $video, array $attributes)
     {
         if (isset($attributes["categories_id"])) {
-            $obj->categories()->sync($attributes["categories_id"]);
+            $video->categories()->sync($attributes["categories_id"]);
         }
         if (isset($attributes["genres_id"])) {
-            $obj->genres()->sync($attributes["genres_id"]);
+            $video->genres()->sync($attributes["genres_id"]);
         }
-        if (isset($attributes["cast_member_id"])) {
-            $obj->castMembers()->sync($attributes["cast_member_id"]);
+        if(isset($attributes["cast_members_id"])) {
+            $video->castMembers()->sync($attributes["cast_members_id"]);
         }
     }
 
@@ -110,7 +110,6 @@ class Video extends Model
     {
         return $this->belongsToMany(CastMember::class)->withTrashed();
     }
-
 
     protected function uploadDir()
     {
@@ -135,5 +134,5 @@ class Video extends Model
     public function getVideoFileUrlAttribute()
     {
         return $this->video_file ? $this->getFileUrl($this->video_file) : null;
-    }
+    }   
 }

@@ -6,6 +6,7 @@ use App\Http\Resources\VideoResource;
 use App\Models\Video;
 use App\Rules\GenresHasCategoriesRule;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 
 class VideoController extends BasicCrudController
 {
@@ -16,7 +17,7 @@ class VideoController extends BasicCrudController
         $this->rules = [
             'title' => 'required|max:255',
             'description' => 'required',
-            'year_launched' => 'required|date_format:Y',
+            'year_launched' => 'required|date_format:Y|min:1',
             'opened' => 'boolean',
             'rating' => 'required|in:' . implode(',', Video::RATING_LIST),
             'duration' => 'required|integer',
@@ -28,8 +29,8 @@ class VideoController extends BasicCrudController
             ],
             'cast_members_id' => [
                 'required',
-                'array',
-                'exists:cast_members,id,deleted_at,NULL',
+                 'array',
+                 'exists:cast_members,id,deleted_at,NULL',
             ],
             'thumb_file' => 'image|max:' . Video::THUMB_FILE_MAX_SIZE, //max é kilobytes
             'banner_file' => 'image|max:' . Video::BANNER_FILE_MAX_SIZE, //max é kilobytes
@@ -89,5 +90,10 @@ class VideoController extends BasicCrudController
     protected function rulesUpdate()
     {
         return $this->rules;
+    }
+
+    protected function queryBuilder(): Builder
+    {
+        return parent::queryBuilder()->with('genres.categories');
     }
 }

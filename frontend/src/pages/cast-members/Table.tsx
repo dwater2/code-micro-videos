@@ -120,7 +120,6 @@ const Table = () => {
           type: yup
             .string()
             .nullable()
-            //.oneOf(castMemberNames)
             .transform((value) => {
               return !value || !castMemberNames.includes(value)
                 ? undefined
