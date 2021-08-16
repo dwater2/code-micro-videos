@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import { useSnackbar } from "notistack";
 import SubmitActions from "../../components/SubmitActions";
 import { DefaultForm } from "../../components/DefaultForm";
+import useSnackbarFormError from "../../hooks/useSnackbarFormError";
 
 const validationSchema = yup.object().shape({
   name: yup.string().label("Nome").required().max(255),
@@ -36,13 +37,15 @@ export const Form = () => {
     reset,
     watch,
     trigger,
-  } = useForm({
+    formState,
+  } = useForm<{ name, description, is_active: boolean }>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       is_active: true,
     },
   });
 
+  useSnackbarFormError(formState.submitCount, errors);
   const snackbar = useSnackbar();
   const history = useHistory();
   const { id }: any = useParams();

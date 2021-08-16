@@ -1,26 +1,24 @@
 import * as React from "react";
-
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
-import { CastMember, CastMemberTypeMap, ListResponse } from "../../util/models";
 import castMemberHttp from "../../util/http/cast-member-http";
+import { CastMember, listResponse, CastMemberTypeMap } from "../../util/models";
+import { useSnackbar } from "notistack";
 import DefaultTable, {
-  makeActionsStyles,
   MuiDataTableRefComponent,
   TableColumn,
 } from "../../components/Table";
-import { useSnackbar } from "notistack";
-import { useRef } from "react";
 import useFilter from "../../hooks/useFilter";
-import { IconButton, MuiThemeProvider } from "@material-ui/core";
-import { FilterResetButton } from "../../components/Table/FilterResetButton";
-import { Link } from "react-router-dom";
-import EditIcon from "@material-ui/icons/Edit";
+import FilterResetButton from "../../components/Table/FilterResetButton";
 import * as yup from "../../util/vendor/yup";
 import { invert } from "lodash";
-import { useContext } from "react";
+import IconButton from "@material-ui/core/IconButton/IconButton";
+import { Link } from "react-router-dom";
+import EditIcon from "@material-ui/icons/Edit";
 import LoadingContext from "../../components/loading/LoadingContext";
+import { DeleteDialog } from "../../components/DeleteDialog";
+import useDeleteCollection from "../../hooks/useDeleteCollection";
 
 const castMemberNames = Object.values(CastMemberTypeMap);
 
@@ -30,14 +28,13 @@ const columnsDefinitions: TableColumn[] = [
     label: "ID",
     width: "30%",
     options: {
-      filter: false,
       sort: false,
+      filter: false,
     },
   },
   {
     name: "name",
     label: "Nome",
-    width: "43%",
     options: {
       filter: false,
     },
@@ -45,20 +42,18 @@ const columnsDefinitions: TableColumn[] = [
   {
     name: "type",
     label: "Tipo",
-    width: "4%",
     options: {
-      customBodyRender(value, tableMeta, updateValue) {
-        return CastMemberTypeMap[value];
-      },
       filterOptions: {
         names: castMemberNames,
+      },
+      customBodyRender(value: number, tableMeta, updateValue) {
+        return CastMemberTypeMap[value];
       },
     },
   },
   {
     name: "created_at",
     label: "Criado em",
-    width: "10%",
     options: {
       filter: false,
       customBodyRender(value, tableMeta, updateValue) {
@@ -94,25 +89,32 @@ const rowsPerPage = 15;
 const rowsPerPageOptions = [15, 25, 50];
 
 const Table = () => {
-  const snackbar = useSnackbar();
-  const subscribed = useRef(true);
+  const { enqueueSnackbar } = useSnackbar();
+  const subscribed = useRef(false);
   const [data, setData] = useState<CastMember[]>([]);
-  const loading = useContext(LoadingContext);
   const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
 
+  const loading = useContext(LoadingContext);
+
   const {
-    columns,
+    openDeleteDialog,
+    setOpenDeleteDialog,
+    rowsToDelete,
+    setRowsToDelete,
+  } = useDeleteCollection();
+
+  const {
     filterManager,
     filterState,
-    debouncedFilterState,
-    dispatch,
     totalRecords,
     setTotalRecords,
+    debouncedFilterState,
+    columns,
   } = useFilter({
     columns: columnsDefinitions,
+    rowsPerPage: rowsPerPage,
+    rowsPerPageOptions: rowsPerPageOptions,
     debounceTime: debounceTime,
-    rowsPerPage,
-    rowsPerPageOptions,
     tableRef,
     extraFilter: {
       createValidationSchema: () => {
@@ -128,11 +130,11 @@ const Table = () => {
             .default(null),
         });
       },
-      formatSearchParams: (debouncedState) => {
-        return debouncedState.extraFilter
+      formatSearchParams: () => {
+        return debouncedFilterState.extraFilter
           ? {
-              ...(debouncedState.extraFilter.type && {
-                type: debouncedState.extraFilter.type,
+              ...(debouncedFilterState.extraFilter.type && {
+                type: debouncedFilterState.extraFilter.type,
               }),
             }
           : undefined;
@@ -158,15 +160,20 @@ const Table = () => {
     serverSideFilterList[indexColumnType] = [typeFilterValue];
   }
 
+  const filteredSearch = filterManager.clearSearchText(
+    debouncedFilterState.search
+  );
+
   useEffect(() => {
     subscribed.current = true;
     filterManager.pushHistory();
     getData();
+
     return () => {
       subscribed.current = false;
     };
   }, [
-    filterManager.cleanSearchText(debouncedFilterState.search),
+    filteredSearch,
     debouncedFilterState.pagination.page,
     debouncedFilterState.pagination.per_page,
     debouncedFilterState.order,
@@ -175,15 +182,16 @@ const Table = () => {
 
   async function getData() {
     try {
-      const { data } = await castMemberHttp.list<ListResponse<CastMember>>({
+      const { data } = await castMemberHttp.list<listResponse<CastMember>>({
         queryParams: {
-          search: filterManager.cleanSearchText(debouncedFilterState.search),
+          search: filterManager.clearSearchText(debouncedFilterState.search),
           page: debouncedFilterState.pagination.page,
           per_page: debouncedFilterState.pagination.per_page,
           sort: debouncedFilterState.order.sort,
           dir: debouncedFilterState.order.dir,
           ...(debouncedFilterState.extraFilter &&
             debouncedFilterState.extraFilter.type && {
+              //inverte para pegar o mapa pelo valor e nao pela chave
               type: invert(CastMemberTypeMap)[
                 debouncedFilterState.extraFilter.type
               ],
@@ -195,21 +203,61 @@ const Table = () => {
         setData(data.data);
         setTotalRecords(data.meta.total);
       }
-    } catch (error) {
-      if (castMemberHttp.isCancelledRequest(error)) {
+    } catch (e) {
+      console.log(e);
+
+      if (castMemberHttp.isCancelledRequest(e)) {
         return;
       }
-      snackbar.enqueueSnackbar("Nāo foi possível carregar as informações", {
+
+      enqueueSnackbar("Não foi possível carregar as informações", {
+        variant: "error",
+      });
+    }
+  }
+
+  async function deleteRows(confirmed: boolean) {
+    if (!confirmed) {
+      setOpenDeleteDialog(false);
+      return;
+    }
+
+    try {
+      const ids = rowsToDelete.data
+        .map((value) => data[value.index].id)
+        .join(",");
+
+      await castMemberHttp.deleteCollection({ ids });
+
+      if (
+        rowsToDelete.data.length === debouncedFilterState.pagination.per_page &&
+        debouncedFilterState.pagination.page > 1
+      ) {
+        const page = debouncedFilterState.pagination.page - 2;
+        filterManager.changePage(page);
+      } else {
+        await getData();
+      }
+
+      setOpenDeleteDialog(false);
+
+      enqueueSnackbar("Registros excluidos com sucesso!", {
+        variant: "success",
+      });
+    } catch (e) {
+      console.log(e);
+      enqueueSnackbar("Não foi possível excluir os registros", {
         variant: "error",
       });
     }
   }
 
   return (
-    <MuiThemeProvider theme={makeActionsStyles(columnsDefinitions.length - 1)}>
+    <React.Fragment>
+      <DeleteDialog open={openDeleteDialog} handleClose={deleteRows} />
       <DefaultTable
-        title="Listagem de membros do elenco"
-        columns={columns}
+        title={"Membros de Elenco"}
+        columns={filterManager.columns}
         data={data}
         loading={loading}
         debounceSearchTime={debouncedSearchTime}
@@ -217,34 +265,44 @@ const Table = () => {
         options={{
           serverSideFilterList,
           serverSide: true,
-          responsive: "scrollMaxHeight",
           searchText: filterState.search as any,
           page: filterState.pagination.page - 1,
           rowsPerPage: filterState.pagination.per_page,
-          rowsPerPageOptions,
+          rowsPerPageOptions: rowsPerPageOptions,
           count: totalRecords,
-          onFilterChange: (column, filterList, type) => {
-            const columnIndex = columns.findIndex(c => c.name === column);
-            filterManager.changeExtraFilter({
-              [column]: filterList[columnIndex] && filterList[columnIndex].length ? filterList[columnIndex][0] : null,
-            });
+          customToolbar: () => {
+            return (
+              <FilterResetButton
+                handleClick={() => filterManager.resetFilter()}
+              />
+            );
           },
-          customToolbar: () => (
-            <FilterResetButton
-              handleClick={() => {
-                filterManager.resetFilter();
-              }}
-            />
-          ),
-          onSearchChange: (value: any) => filterManager.changeSearch(value),
-          onChangePage: (page: number) => filterManager.changePage(page),
-          onChangeRowsPerPage: (perPage: number) =>
-            filterManager.changeRowsPerPage(perPage),
+          onFilterChange: (column, filterList, type) => {
+            const columnIndex = columns.findIndex((c) => c.name === column);
+
+            if (columnIndex && filterList[columnIndex]) {
+              filterManager.changeExtraFilter({
+                [column]: filterList[columnIndex].length
+                  ? filterList[columnIndex][0]
+                  : null,
+              });
+            } else {
+              filterManager.clearExtraFilter();
+            }
+          },
+          onSearchChange: (value) => filterManager.changeSearch(value),
+          onChangePage: (page) => filterManager.changePage(page),
+          onChangeRowsPerPage: (per_page) =>
+            filterManager.changeRowsPerPage(per_page),
           onColumnSortChange: (changedColumn: string, direction: string) =>
-            filterManager.changeColumnSort(changedColumn, direction),
+            filterManager.changeSort(changedColumn, direction),
+          onRowsDelete: (rowsDeleted) => {
+            setRowsToDelete(rowsDeleted as any);
+            return false;
+          },
         }}
       />
-    </MuiThemeProvider>
+    </React.Fragment>
   );
 };
 
